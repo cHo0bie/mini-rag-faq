@@ -1,10 +1,21 @@
-import streamlit as st
+# demo_streamlit.py — fixed import path for 'src' and robust samples path
+import os, sys, streamlit as st
+
+# Add ./src to sys.path so 'ragmini' package can be imported on Streamlit Cloud
+BASE_DIR = os.path.dirname(__file__)
+SRC_DIR = os.path.join(BASE_DIR, "src")
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
 from ragmini import read_docs, build_corpus, build_tfidf_index, search, get_chat_provider
 
 st.set_page_config(page_title='Mini‑RAG (FAQ + цитаты)', page_icon='📚', layout='wide')
 st.title('Mini‑RAG (FAQ + цитаты)')
 
-docs = read_docs('samples/faq')
+# Use absolute path to the sample docs (works regardless of working directory)
+DOCS_DIR = os.path.join(BASE_DIR, 'samples', 'faq')
+
+docs = read_docs(DOCS_DIR)
 corpus, meta = build_corpus(docs)
 vect, mat = build_tfidf_index(corpus)
 
@@ -14,7 +25,8 @@ with col1:
 with col2:
     topk = st.slider('Top‑k пассажей', 3, 10, 5)
 
-use_llm = st.toggle('Использовать LLM для финального ответа', value=False, help='Если выключено — ответ строится из лучших пассажей.')
+use_llm = st.toggle('Использовать LLM для финального ответа', value=False,
+                    help='Если выключено — ответ строится из лучших пассажей.')
 
 if st.button('Искать'):
     hits = search(q, vect, mat, corpus, meta, k=topk)
