@@ -56,7 +56,7 @@ if hits is not None:
     if not st.session_state['use_llm']:
         answer = hits[0]['passage'] if hits else 'Не найдено.'
         citations = [h['url'] for h in hits[:3]]
-        st.write(answer)
+        st.write(mask_sensitive(answer))
         st.caption('Цитаты: ' + ' · '.join(citations))
     else:
         provider = get_chat_provider()
